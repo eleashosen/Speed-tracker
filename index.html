@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Speed Meter</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for better mobile experience and font */
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #1a202c; /* Dark background */
+            color: #e2e8f0; /* Light text */
+            margin: 0;
+            padding: 1rem; /* Add some padding around the content */
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px; /* Max width for better readability on larger screens */
+            background-color: #2d3748; /* Slightly lighter dark background for container */
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .speed-display {
+            font-size: 4.5rem; /* Very large font for speed */
+            font-weight: bold;
+            color: #63b3ed; /* Blue color for speed */
+            line-height: 1;
+        }
+        .unit {
+            font-size: 1.5rem;
+            color: #a0aec0; /* Gray color for unit */
+        }
+        .status-message {
+            font-size: 1.1rem;
+            color: #cbd5e0;
+            min-height: 2rem; /* Reserve space to prevent layout shifts */
+        }
+        .info-box {
+            background-color: #4a5568; /* Darker gray for info */
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            color: #cbd5e0;
+            text-align: left;
+        }
+        /* Canvas specific styling */
+        #speedometerCanvas {
+            background-color: #2d3748; /* Match container background */
+            border-radius: 1rem;
+            margin-top: 1.5rem;
+            width: 100%; /* Make canvas responsive */
+            height: auto; /* Maintain aspect ratio */
+            max-width: 300px; /* Limit max size for dial */
+            align-self: center; /* Center the canvas within the flex container */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-white mb-4">Speed Meter</h1>
+
+        <!-- Canvas for the speedometer dial -->
+        <canvas id="speedometerCanvas" width="300" height="150"></canvas>
+
+        <div class="speed-display-area">
+            <div id="speed" class="speed-display">0.0</div>
+            <div id="unit" class="unit">km/h</div>
+        </div>
+
+        <p id="status" class="status-message">Starting speed tracking...</p>
+
+        <div class="info-box">
+            <p><strong>Note:</strong> Speed accuracy depends on your device's GPS signal. This app works best outdoors.</p>
+            <p>If speed shows 0.0, it might be due to no movement or weak GPS signal.</p>
+        </div>
+    </div>
+
+    <script>
+        // Get references to HTML elements
+        const speedDisplay = document.getElementById('speed');
+        const unitDisplay = document.getElementById('unit');
+        const statusMessage = document.getElementById('status');
+        const speedometerCanvas = document.getElementById('speedometerCanvas');
+        const ctx = speedometerCanvas.getContext('2d');
+
+        let watchId = null; // To store the ID returned by watchPosition
+        const speedUnit = 'km/h'; // Can be 'km/h' or 'mph'
+        const maxSpeed = 120; // Maximum speed for the dial (e.g., 120 km/h or mph)
+
+        /**
+         * Converts meters per second to kilometers per hour.
+         * @param {number} mps - Speed in meters per second.
+         * @returns {number} Speed in kilometers per hour.
+         */
+        function convertMpsToKmh(mps) {
+            return mps * 3.6;
+        }
+
+        /**
+         * Converts meters per second to miles per hour.
+         * @param {number} mps - Speed in meters per second.
+         * @returns {number} Speed in miles per hour.
+         */
+        function convertMpsToMph(mps) {
+            return mps * 2.23694;
+        }
+
+        /**
+         * Draws the speedometer dial, markings, and needle.
+         * @param {number} currentSpeed - The current speed to display on the dial.
+         */
+        function drawSpeedometer(currentSpeed) {
+            // Clear the canvas
+            ctx.clearRect(0, 0, speedometerCanvas.width, speedometerCanvas.height);
+
+            const centerX = speedometerCanvas.width / 2;
+            const centerY = speedometerCanvas.height; // Base of the semi-circle
+            const radius = speedometerCanvas.width / 2 - 10; // Slightly smaller than half width for padding
+
+            // Draw the outer arc (speedometer background)
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, Math.PI, 2 * Math.PI, false); // Half circle from 180 to 360 degrees
+            ctx.lineWidth = 20;
+            ctx.strokeStyle = '#4a5568'; // Darker gray for the track
+            ctx.stroke();
+
+            // Draw speed markings and labels
+            ctx.font = '14px Inter';
+            ctx.fillStyle = '#cbd5e0'; // Light gray for text
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let i = 0; i <= maxSpeed; i += 20) {
+                const angle = Math.PI + (i / maxSpeed) * Math.PI; // Map speed to angle (180 to 360 degrees)
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+
+                // Draw tick marks
+                ctx.beginPath();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#cbd5e0';
+                ctx.moveTo(centerX + (radius - 10) * Math.cos(angle), centerY + (radius - 10) * Math.sin(angle));
+                ctx.lineTo(centerX + radius * Math.cos(angle), centerY + radius * Math.sin(angle));
+                ctx.stroke();
+
+                // Draw labels
+                ctx.fillText(i.toString(), centerX + (radius - 25) * Math.cos(angle), centerY + (radius - 25) * Math.sin(angle));
+            }
+
+            // Draw the needle
+            ctx.save(); // Save the current canvas state
+            ctx.translate(centerX, centerY); // Move origin to center of the dial
+
+            // Calculate needle angle based on current speed
+            let needleAngle = Math.PI + (Math.min(currentSpeed, maxSpeed) / maxSpeed) * Math.PI;
+
+            ctx.rotate(needleAngle); // Rotate to the calculated angle
+
+            ctx.beginPath();
+            ctx.moveTo(-5, 0); // Base of the needle
+            ctx.lineTo(5, 0);
+            ctx.lineTo(0, -radius + 15); // Tip of the needle
+            ctx.closePath();
+            ctx.fillStyle = '#f56565'; // Red color for the needle
+            ctx.fill();
+
+            // Draw the central pivot point
+            ctx.beginPath();
+            ctx.arc(0, 0, 8, 0, 2 * Math.PI);
+            ctx.fillStyle = '#63b3ed'; // Blue for pivot
+            ctx.fill();
+
+            ctx.restore(); // Restore the canvas state
+        }
+
+        /**
+         * Success callback for geolocation.
+         * Updates the speed display and speedometer dial.
+         * @param {GeolocationPosition} position - The GeolocationPosition object.
+         */
+        function successCallback(position) {
+            const speedMps = position.coords.speed; // Speed in meters per second
+
+            let displaySpeed;
+            if (speedUnit === 'km/h') {
+                displaySpeed = convertMpsToKmh(speedMps);
+            } else {
+                displaySpeed = convertMpsToMph(speedMps);
+            }
+
+            if (speedMps === null || speedMps < 0 || isNaN(displaySpeed)) {
+                // If speed is null (not available), negative (invalid), or NaN
+                speedDisplay.textContent = '0.0';
+                statusMessage.textContent = 'GPS signal weak or no movement detected.';
+                drawSpeedometer(0); // Draw needle at 0
+            } else {
+                speedDisplay.textContent = displaySpeed.toFixed(1); // Display with one decimal place
+                statusMessage.textContent = 'Tracking speed...';
+                drawSpeedometer(displaySpeed); // Update the speedometer dial
+            }
+            unitDisplay.textContent = speedUnit;
+        }
+
+        /**
+         * Error callback for geolocation.
+         * Displays an error message to the user.
+         * @param {GeolocationPositionError} error - The GeolocationPositionError object.
+         */
+        function errorCallback(error) {
+            let errorMessage = '';
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = "Permission denied: Please allow location access for this app to work.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = "Position unavailable: Your location could not be determined.";
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = "Timeout: Could not retrieve location within the allowed time.";
+                    break;
+                default:
+                    errorMessage = "An unknown error occurred while getting your location.";
+                    break;
+            }
+            speedDisplay.textContent = 'N/A';
+            statusMessage.textContent = errorMessage;
+            console.error('Geolocation error:', error);
+            // No need to call stopTracking as there are no buttons to re-enable
+            drawSpeedometer(0); // Reset dial on error
+        }
+
+        /**
+         * Starts tracking the user's speed.
+         * This function is now called automatically on page load.
+         */
+        function startTracking() {
+            if (navigator.geolocation) {
+                statusMessage.textContent = 'Attempting to get location...';
+                // Options for watchPosition
+                const options = {
+                    enableHighAccuracy: true, // Use GPS if available
+                    timeout: 5000,           // Maximum time to wait for a location (5 seconds)
+                    maximumAge: 0            // Don't use cached positions
+                };
+
+                // Start watching the user's position
+                watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
+            } else {
+                statusMessage.textContent = 'Geolocation is not supported by your browser.';
+            }
+        }
+
+        /**
+         * Function to resize canvas and redraw speedometer.
+         */
+        function resizeCanvas() {
+            // Get the computed style of the canvas to determine its actual rendered width
+            const computedStyle = getComputedStyle(speedometerCanvas);
+            const parentWidth = parseFloat(computedStyle.width);
+
+            // Set canvas drawing buffer size to match its display size for crisp rendering
+            speedometerCanvas.width = parentWidth;
+            speedometerCanvas.height = parentWidth / 2; // Maintain 2:1 aspect ratio for semi-circle
+
+            drawSpeedometer(parseFloat(speedDisplay.textContent)); // Redraw with current speed
+        }
+
+        // Initial setup on window load
+        window.onload = function() {
+            // Check if geolocation is supported and update status
+            if (!navigator.geolocation) {
+                statusMessage.textContent = 'Geolocation is not supported by your browser.';
+            }
+            resizeCanvas(); // Initial draw of the speedometer
+            startTracking(); // Automatically start tracking on load
+        };
+
+        // Redraw speedometer on window resize
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+</html>
