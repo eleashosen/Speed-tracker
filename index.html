@@ -65,6 +65,12 @@
             max-width: 300px; /* Limit max size for dial */
             align-self: center; /* Center the canvas within the flex container */
         }
+        .clock-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #a0aec0; /* Gray color for clock */
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -79,12 +85,13 @@
             <div id="unit" class="unit">km/h</div>
         </div>
 
+        <!-- Clock display -->
+        <div id="clock" class="clock-display"></div>
+
         <p id="status" class="status-message">Starting speed tracking...</p>
 
         <div class="info-box">
-
-
-            
+            <p><strong>Develop By :</strong> Eleas Hosen</p>
         </div>
     </div>
 
@@ -95,6 +102,7 @@
         const statusMessage = document.getElementById('status');
         const speedometerCanvas = document.getElementById('speedometerCanvas');
         const ctx = speedometerCanvas.getContext('2d');
+        const clockDisplay = document.getElementById('clock'); // Reference to the clock display
 
         let watchId = null; // To store the ID returned by watchPosition
         const speedUnit = 'km/h'; // Can be 'km/h' or 'mph'
@@ -198,7 +206,7 @@
             if (speedUnit === 'km/h') {
                 displaySpeed = convertMpsToKmh(speedMps);
             } else {
-                displaySpeed = convertMpsToMph(speedMps);
+                displaySpeed = convertMpsToMph(mps);
             }
 
             if (speedMps === null || speedMps < 0 || isNaN(displaySpeed)) {
@@ -238,7 +246,6 @@
             speedDisplay.textContent = 'N/A';
             statusMessage.textContent = errorMessage;
             console.error('Geolocation error:', error);
-            // No need to call stopTracking as there are no buttons to re-enable
             drawSpeedometer(0); // Reset dial on error
         }
 
@@ -264,6 +271,17 @@
         }
 
         /**
+         * Function to update the digital clock display.
+         */
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            clockDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        /**
          * Function to resize canvas and redraw speedometer.
          */
         function resizeCanvas() {
@@ -286,6 +304,8 @@
             }
             resizeCanvas(); // Initial draw of the speedometer
             startTracking(); // Automatically start tracking on load
+            setInterval(updateClock, 1000); // Update clock every second
+            updateClock(); // Initial call to display clock immediately
         };
 
         // Redraw speedometer on window resize
