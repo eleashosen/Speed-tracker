@@ -1,480 +1,798 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Speed & Distance Tracker</title>
+
+    <title>Mobile Speed Meter</title>
+
     <!-- Tailwind CSS CDN -->
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
+
         /* Custom styles for better mobile experience and font */
+
         body {
+
             font-family: 'Inter', sans-serif;
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
             min-height: 100vh;
+
             background-color: #1a202c; /* Dark background */
+
             color: #e2e8f0; /* Light text */
+
             margin: 0;
+
             padding: 1rem; /* Add some padding around the content */
+
             box-sizing: border-box;
+
         }
+
         .container {
+
             width: 100%;
+
             max-width: 400px; /* Max width for better readability on larger screens */
+
             background-color: #2d3748; /* Slightly lighter dark background for container */
+
             border-radius: 1.5rem; /* More rounded corners */
+
             box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+
             padding: 2rem;
+
             text-align: center;
+
             display: flex;
+
             flex-direction: column;
+
             gap: 1.5rem;
+
         }
+
         .speed-display {
+
             font-size: 4.5rem; /* Very large font for speed */
+
             font-weight: bold;
+
             color: #63b3ed; /* Blue color for speed */
+
             line-height: 1;
+
             transition: color 0.1s ease-out; /* Smooth transition for color change */
+
         }
+
         .speed-display.flash {
+
             color: #a7f3d0; /* A brighter, contrasting color for the flash */
+
         }
+
         .unit {
+
             font-size: 1.5rem;
+
             color: #a0aec0; /* Gray color for unit */
+
         }
+
         .status-message {
+
             font-size: 1.1rem;
+
             color: #cbd5e0;
+
             min-height: 2rem; /* Reserve space to prevent layout shifts */
+
         }
+
         .info-box {
+
             background-color: #4a5568; /* Darker gray for info */
+
             padding: 1rem;
+
             border-radius: 0.75rem;
+
             font-size: 0.9rem;
+
             color: #cbd5e0;
+
             text-align: left;
+
         }
+
         /* Canvas specific styling */
+
         #speedometerCanvas {
+
             background-color: #2d3748; /* Match container background */
+
             border-radius: 1rem;
+
             margin-top: 1.5rem;
+
             width: 100%; /* Make canvas responsive */
+
             height: auto; /* Maintain aspect ratio */
+
             max-width: 300px; /* Limit max size for dial */
+
             align-self: center; /* Center the canvas within the flex container */
+
         }
+
         .clock-display {
+
             font-size: 2rem;
+
             font-weight: bold;
+
             color: #a0aec0; /* Gray color for clock */
+
             margin-top: 1rem;
+
         }
+
         .location-address {
+
             font-size: 1rem;
+
             color: #a0aec0;
+
             margin-bottom: 1rem;
+
             word-wrap: break-word; /* Ensure long addresses wrap */
+
         }
-        
-        /* New destination section styles */
-        .destination-section {
-            background-color: #3c4758;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-        .destination-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #63b3ed;
-            margin-bottom: 0.8rem;
-        }
-        .destination-input {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid #4a5568;
-            background-color: #2d3748;
-            color: #e2e8f0;
-            font-size: 1rem;
-            margin-bottom: 0.8rem;
-            box-sizing: border-box;
-        }
-        .destination-button {
-            background-color: #63b3ed;
-            color: #1a202c;
-            border: none;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            width: 100%;
-            margin-bottom: 0.8rem;
-        }
-        .destination-button:hover {
-            background-color: #4299e1;
-        }
-        .distance-display {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #a7f3d0;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            background-color: rgba(39, 51, 72, 0.6);
-        }
-        .distance-label {
-            font-size: 0.9rem;
-            color: #a0aec0;
-            margin-top: 0.3rem;
-        }
+
     </style>
+
 </head>
+
 <body>
+
     <div class="container">
-        <h1 class="text-3xl font-bold text-white mb-2">Speed & Distance Tracker</h1>
+
+        <h1 class="text-3xl font-bold text-white mb-2">Speed Meter</h1>
+
         <!-- Location Address Display -->
+
         <div id="locationAddress" class="location-address">Fetching location...</div>
 
+
+
         <!-- Canvas for the speedometer dial -->
+
         <canvas id="speedometerCanvas" width="300" height="150"></canvas>
 
+
+
         <div class="speed-display-area">
+
             <div id="speed" class="speed-display">0.0</div>
+
             <div id="unit" class="unit">km/h</div>
+
         </div>
 
+
+
         <!-- Clock display -->
+
         <div id="clock" class="clock-display"></div>
-        
-        <!-- New Destination Section -->
-        <div class="destination-section">
-            <div class="destination-title">Destination Tracker</div>
-            <input type="text" id="destinationInput" class="destination-input" placeholder="Enter destination address">
-            <button id="setDestinationBtn" class="destination-button">Set Destination</button>
-            <div id="distanceDisplay" class="distance-display">-- km</div>
-            <div class="distance-label">Distance to destination</div>
-        </div>
+
+
 
         <p id="status" class="status-message">Starting speed tracking...</p>
 
+
+
         <div class="info-box">
+
             <p><strong>Develop & Design</strong> @Eleas</p>
+
         </div>
+
     </div>
 
+
+
     <script>
+
         // Get references to HTML elements
+
         const speedDisplay = document.getElementById('speed');
+
         const unitDisplay = document.getElementById('unit');
+
         const statusMessage = document.getElementById('status');
+
         const speedometerCanvas = document.getElementById('speedometerCanvas');
+
         const ctx = speedometerCanvas.getContext('2d');
+
         const clockDisplay = document.getElementById('clock'); // Reference to the clock display
+
         const locationAddressDisplay = document.getElementById('locationAddress'); // Reference to location address display
-        const destinationInput = document.getElementById('destinationInput');
-        const setDestinationBtn = document.getElementById('setDestinationBtn');
-        const distanceDisplay = document.getElementById('distanceDisplay');
+
+
 
         let watchId = null; // To store the ID returned by watchPosition
+
         const speedUnit = 'km/h'; // Can be 'km/h' or 'mph'
+
         const maxSpeed = 120; // Maximum speed for the dial (e.g., 120 km/h or mph)
 
+
+
         let lastLocationFetchTime = 0;
+
         const LOCATION_FETCH_THROTTLE_MS = 5000; // Fetch location name at most every 5 seconds
+
         let currentDisplayedSpeed = 0.0; // Store the currently displayed speed for comparison
-        
-        // Destination tracking variables
-        let destinationCoords = null;
-        let currentCoords = null;
-        let distanceUpdateInterval = null;
+
+
 
         /**
+
          * Converts meters per second to kilometers per hour.
+
          * @param {number} mps - Speed in meters per second.
+
          * @returns {number} Speed in kilometers per hour.
+
          */
+
         function convertMpsToKmh(mps) {
+
             return mps * 3.6;
+
         }
 
+
+
         /**
+
          * Converts meters per second to miles per hour.
+
          * @param {number} mps - Speed in meters per second.
+
          * @returns {number} Speed in miles per hour.
+
          */
+
         function convertMpsToMph(mps) {
+
             return mps * 2.23694;
+
         }
 
+
+
         /**
+
          * Draws the speedometer dial, markings, and needle.
+
          * @param {number} currentSpeed - The current speed to display on the dial.
+
          */
+
         function drawSpeedometer(currentSpeed) {
+
             // Clear the canvas
+
             ctx.clearRect(0, 0, speedometerCanvas.width, speedometerCanvas.height);
 
+
+
             const centerX = speedometerCanvas.width / 2;
+
             const centerY = speedometerCanvas.height; // Base of the semi-circle
+
             const radius = speedometerCanvas.width / 2 - 10; // Slightly smaller than half width for padding
 
+
+
             // Draw the outer arc (speedometer background)
+
             ctx.beginPath();
+
             ctx.arc(centerX, centerY, radius, Math.PI, 2 * Math.PI, false); // Half circle from 180 to 360 degrees
+
             ctx.lineWidth = 20;
+
             ctx.strokeStyle = '#4a5568'; // Darker gray for the track
+
             ctx.stroke();
 
+
+
             // Draw speed markings and labels
+
             ctx.font = '14px Inter';
+
             ctx.fillStyle = '#cbd5e0'; // Light gray for text
+
             ctx.textAlign = 'center';
+
             ctx.textBaseline = 'middle';
 
+
+
             for (let i = 0; i <= maxSpeed; i += 20) {
+
                 const angle = Math.PI + (i / maxSpeed) * Math.PI; // Map speed to angle (180 to 360 degrees)
+
                 const x = centerX + radius * Math.cos(angle);
+
                 const y = centerY + radius * Math.sin(angle);
 
+
+
                 // Draw tick marks
+
                 ctx.beginPath();
+
                 ctx.lineWidth = 2;
+
                 ctx.strokeStyle = '#cbd5e0';
+
                 ctx.moveTo(centerX + (radius - 10) * Math.cos(angle), centerY + (radius - 10) * Math.sin(angle));
+
                 ctx.lineTo(centerX + radius * Math.cos(angle), centerY + radius * Math.sin(angle));
+
                 ctx.stroke();
 
+
+
                 // Draw labels
+
                 ctx.fillText(i.toString(), centerX + (radius - 25) * Math.cos(angle), centerY + (radius - 25) * Math.sin(angle));
+
             }
 
+
+
             // Draw the needle
+
             ctx.save(); // Save the current canvas state
+
             ctx.translate(centerX, centerY); // Move origin to center of the dial
 
+
+
             // Calculate needle angle based on current speed
+
             let needleAngle = Math.PI + (Math.min(currentSpeed, maxSpeed) / maxSpeed) * Math.PI;
+
+
 
             ctx.rotate(needleAngle); // Rotate to the calculated angle
 
+
+
             ctx.beginPath();
+
             ctx.moveTo(-5, 0); // Base of the needle
+
             ctx.lineTo(5, 0);
+
             ctx.lineTo(0, -radius + 15); // Tip of the needle
+
             ctx.closePath();
+
             ctx.fillStyle = '#f56565'; // Red color for the needle
+
             ctx.fill();
+
+
 
             // Draw the central pivot point
+
             ctx.beginPath();
+
             ctx.arc(0, 0, 8, 0, 2 * Math.PI);
+
             ctx.fillStyle = '#63b3ed'; // Blue for pivot
+
             ctx.fill();
 
+
+
             ctx.restore(); // Restore the canvas state
+
         }
 
+
+
         /**
+
          * Fetches the location name (address) using a reverse geocoding API.
+
          * @param {number} latitude - The latitude of the location.
+
          * @param {number} longitude - The longitude of the location.
+
          */
+
         async function fetchLocationName(latitude, longitude) {
+
             const currentTime = Date.now();
+
             if (currentTime - lastLocationFetchTime < LOCATION_FETCH_THROTTLE_MS) {
+
                 // Too soon to fetch again, display current coordinates as a temporary fallback
+
                 // Only update if it's not already showing Lat/Lon (Throttled) to avoid flickering
+
                 if (!locationAddressDisplay.textContent.includes("Throttled")) {
+
                     locationAddressDisplay.textContent = `Lat: ${latitude.toFixed(5)}, Lon: ${longitude.toFixed(5)} (Throttled)`;
+
                 }
+
                 return;
+
             }
+
+
 
             lastLocationFetchTime = currentTime; // Update last fetch time
 
+
+
             locationAddressDisplay.textContent = 'Resolving address...';
+
             try {
+
                 // OpenStreetMap Nominatim API for reverse geocoding
+
                 const apiUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`;
+
                 const response = await fetch(apiUrl);
+
                 const data = await response.json();
+
+
 
                 if (data && data.display_name) {
+
                     locationAddressDisplay.textContent = data.display_name;
+
                 } else {
+
                     locationAddressDisplay.textContent = `Lat: ${latitude.toFixed(5)}, Lon: ${longitude.toFixed(5)} (Address not found)`;
+
                 }
+
             } catch (error) {
+
                 console.error('Error fetching location name:', error);
+
                 locationAddressDisplay.textContent = `Lat: ${latitude.toFixed(5)}, Lon: ${longitude.toFixed(5)} (Failed to get address)`;
+
             }
+
         }
 
-        /**
-         * Converts degrees to radians
-         * @param {number} deg - Degrees to convert
-         * @returns {number} Radians
-         */
-        function deg2rad(deg) {
-            return deg * (Math.PI / 180);
-        }
+
 
         /**
-         * Calculates the distance between two coordinates (Haversine formula)
-         * @param {number} lat1 - Latitude of first point
-         * @param {number} lon1 - Longitude of first point
-         * @param {number} lat2 - Latitude of second point
-         * @param {number} lon2 - Longitude of second point
-         * @returns {number} Distance in kilometers
-         */
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Earth radius in km
-            const dLat = deg2rad(lat2 - lat1);
-            const dLon = deg2rad(lon2 - lon1);
-            const a = 
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = R * c; // Distance in km
-            return distance;
-        }
 
-        /**
-         * Updates the distance display to the destination
-         */
-        function updateDistanceDisplay() {
-            if (!destinationCoords || !currentCoords) {
-                distanceDisplay.textContent = '-- km';
-                return;
-            }
-            
-            const distance = getDistance(
-                currentCoords.latitude, 
-                currentCoords.longitude,
-                destinationCoords.latitude,
-                destinationCoords.longitude
-            );
-            
-            distanceDisplay.textContent = `${distance.toFixed(1)} km`;
-        }
-
-        /**
-         * Geocodes the destination address to coordinates
-         */
-        async function setDestination() {
-            const address = destinationInput.value.trim();
-            if (!address) return;
-            
-            statusMessage.textContent = `Resolving destination: ${address}...`;
-            
-            try {
-                // OpenStreetMap Nominatim API for forward geocoding
-                const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-                
-                if (data && data.length > 0) {
-                    destinationCoords = {
-                        latitude: parseFloat(data[0].lat),
-                        longitude: parseFloat(data[0].lon)
-                    };
-                    statusMessage.textContent = `Destination set: ${address}`;
-                    
-                    // Update the distance immediately
-                    if (currentCoords) {
-                        updateDistanceDisplay();
-                    }
-                } else {
-                    statusMessage.textContent = "Destination not found. Try a different address.";
-                }
-            } catch (error) {
-                console.error('Error geocoding destination:', error);
-                statusMessage.textContent = "Failed to resolve destination. Please try again.";
-            }
-        }
-
-        /**
          * Success callback for geolocation.
+
          * Updates the speed display and speedometer dial.
+
          * @param {GeolocationPosition} position - The GeolocationPosition object.
+
          */
+
         function successCallback(position) {
+
             const speedMps = position.coords.speed; // Speed in meters per second
+
             const latitude = position.coords.latitude;
+
             const longitude = position.coords.longitude;
-            
-            // Store current coordinates for distance calculation
-            currentCoords = {
-                latitude: latitude,
-                longitude: longitude
-            };
+
+
 
             let displaySpeed;
+
             if (speedUnit === 'km/h') {
+
                 displaySpeed = convertMpsToKmh(speedMps);
+
             } else {
+
                 displaySpeed = convertMpsToMph(speedMps);
+
             }
+
+
 
             const newSpeed = parseFloat(displaySpeed.toFixed(1)); // Get the new speed as a number, rounded
 
+
+
             if (speedMps === null || speedMps < 0 || isNaN(newSpeed)) {
+
                 // If speed is null (not available), negative (invalid), or NaN
+
                 if (currentDisplayedSpeed !== 0.0) { // Only update if it's actually changing to 0
+
                     speedDisplay.textContent = '0.0';
+
                     speedDisplay.classList.add('flash');
+
                     setTimeout(() => speedDisplay.classList.remove('flash'), 100); // Flash briefly
+
                     currentDisplayedSpeed = 0.0;
+
                 }
+
                 statusMessage.textContent = 'GPS signal weak or no movement detected.';
+
                 drawSpeedometer(0); // Draw needle at 0
+
             } else {
+
                 if (currentDisplayedSpeed !== newSpeed) { // Only update if the value has numerically changed
+
                     speedDisplay.textContent = newSpeed.toFixed(1); // Display with one decimal place
+
                     speedDisplay.classList.add('flash');
+
                     setTimeout(() => speedDisplay.classList.remove('flash'), 100); // Flash briefly
+
                     currentDisplayedSpeed = newSpeed;
+
                 }
+
                 statusMessage.textContent = 'Tracking speed...';
+
                 drawSpeedometer(newSpeed); // Update the speedometer dial
+
             }
+
             unitDisplay.textContent = speedUnit;
 
+
+
             // Fetch and display location name, respecting the throttle
+
             fetchLocationName(latitude, longitude);
-            
-            // Update distance to destination if destination is set
-            if (destinationCoords) {
-                updateDistanceDisplay();
-            }
+
         }
 
+
+
         /**
+
          * Error callback for geolocation.
+
          * Displays an error message to the user.
+
          * @param {GeolocationPositionError} error - The GeolocationPositionError object.
+
          */
+
         function errorCallback(error) {
+
             let errorMessage = '';
+
             switch (error.code) {
+
                 case error.PERMISSION_DENIED:
+
                     errorMessage = "Permission denied: Please allow location access for this app to work.";
+
                     locationAddressDisplay.textContent = 'Location access denied.';
+
                     break;
+
                 case error.POSITION_UNAVAILABLE:
+
                     errorMessage = "Position unavailable: Your location could not be determined.";
+
                     locationAddressDisplay.textContent = 'Location unavailable.';
+
                     break;
+
                 case error.TIMEOUT:
+
                     errorMessage = "Timeout: Could not retrieve location within the allowed time.";
-                    locationAddressDisplay.textContent = 'Location t
+
+                    locationAddressDisplay.textContent = 'Location timeout.';
+
+                    break;
+
+                default:
+
+                    errorMessage = "An unknown error occurred while getting your location.";
+
+                    locationAddressDisplay.textContent = 'Location error.';
+
+                    break;
+
+            }
+
+            speedDisplay.textContent = 'N/A';
+
+            statusMessage.textContent = errorMessage;
+
+            // Log specific error details for debugging
+
+            console.error('Geolocation error:', error.code, error.message, error);
+
+            drawSpeedometer(0); // Reset dial on error
+
+        }
+
+
+
+        /**
+
+         * Starts tracking the user's speed.
+
+         * This function is now called automatically on page load.
+
+         */
+
+        function startTracking() {
+
+            if (navigator.geolocation) {
+
+                statusMessage.textContent = 'Attempting to get location...';
+
+                locationAddressDisplay.textContent = 'Getting precise location...';
+
+                // Options for watchPosition
+
+                const options = {
+
+                    enableHighAccuracy: true, // Use GPS if available
+
+                    timeout: 5000,           // Maximum time to wait for a location (5 seconds)
+
+                    maximumAge: 0            // Don't use cached positions
+
+                };
+
+
+
+                // Start watching the user's position
+
+                watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
+
+            } else {
+
+                statusMessage.textContent = 'Geolocation is not supported by your browser.';
+
+                locationAddressDisplay.textContent = 'Geolocation not supported.';
+
+            }
+
+        }
+
+
+
+        /**
+
+         * Function to update the digital clock display.
+
+         */
+
+        function updateClock() {
+
+            const now = new Date();
+
+            const hours = String(now.getHours()).padStart(2, '0');
+
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            clockDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+
+        }
+
+
+
+        /**
+
+         * Function to resize canvas and redraw speedometer.
+
+         */
+
+        function resizeCanvas() {
+
+            // Get the computed style of the canvas to determine its actual rendered width
+
+            const computedStyle = getComputedStyle(speedometerCanvas);
+
+            const parentWidth = parseFloat(computedStyle.width);
+
+
+
+            // Set canvas drawing buffer size to match its display size for crisp rendering
+
+            speedometerCanvas.width = parentWidth;
+
+            speedometerCanvas.height = parentWidth / 2; // Maintain 2:1 aspect ratio for semi-circle
+
+
+
+            // Ensure speedDisplay.textContent is a valid number before passing to drawSpeedometer
+
+            const currentSpeed = parseFloat(speedDisplay.textContent);
+
+            if (!isNaN(currentSpeed)) {
+
+                drawSpeedometer(currentSpeed); // Redraw with current speed
+
+            } else {
+
+                drawSpeedometer(0); // Default to 0 if speed is not a number
+
+            }
+
+        }
+
+
+
+        // Initial setup on window load
+
+        window.onload = function() {
+
+            // Check if geolocation is supported and update status
+
+            if (!navigator.geolocation) {
+
+                statusMessage.textContent = 'Geolocation is not supported by your browser.';
+
+                locationAddressDisplay.textContent = 'Geolocation not supported.';
+
+            }
+
+            resizeCanvas(); // Initial draw of the speedometer
+
+            startTracking(); // Automatically start tracking on load
+
+            setInterval(updateClock, 1000); // Update clock every second
+
+            updateClock(); // Initial call to display clock immediately
+
+        };
+
+
+
+        // Redraw speedometer on window resize
+
+        window.addEventListener('resize', resizeCanvas);
+
+    </script>
+
+</body>
+
+</html>
+
