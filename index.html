@@ -14,7 +14,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: #1a202c; /* Dark background */
+            background-color: #000000; /* Solid black background */
             color: #e2e8f0; /* Light text */
             margin: 0;
             padding: 1rem; /* Add some padding around the content */
@@ -23,9 +23,9 @@
         .container {
             width: 100%;
             max-width: 400px; /* Max width for better readability on larger screens */
-            background-color: #2d3748; /* Slightly lighter dark background for container */
+            background-color: #000000; /* Solid black for container to match dial */
             border-radius: 1.5rem; /* More rounded corners */
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5); /* Stronger shadow for black theme */
             padding: 2rem;
             text-align: center;
             display: flex;
@@ -35,16 +35,30 @@
         .speed-display {
             font-size: 4.5rem; /* Very large font for speed */
             font-weight: bold;
-            color: #63b3ed; /* Blue color for speed */
+            color: #ff8c00; /* Orange/Red color for speed, mimicking segmented display */
             line-height: 1;
             transition: color 0.1s ease-out; /* Smooth transition for color change */
+            /* Attempt to mimic segmented font style */
+            font-family: 'Digital-7', monospace; /* Placeholder, true digital font requires import */
+            text-shadow: 0 0 10px rgba(255, 140, 0, 0.7); /* Glow effect */
         }
+        /* Fallback for Digital-7 font if not loaded */
+        @font-face {
+            font-family: 'Digital-7';
+            src: url('https://raw.githubusercontent.com/spleennoon/Digital-7/master/digital-7.ttf') format('truetype');
+            /* Note: Direct linking to TTF from GitHub raw might have CORS issues or be unreliable.
+               For production, host this font yourself or use a service like Google Fonts if available.
+               Using monospace as a fallback. */
+        }
+
         .speed-display.flash {
-            color: #a7f3d0; /* A brighter, contrasting color for the flash */
+            color: #ffddaa; /* Brighter flash color */
         }
         .unit {
             font-size: 1.5rem;
-            color: #a0aec0; /* Gray color for unit */
+            color: #ffffff; /* White for unit */
+            font-family: 'Digital-7', monospace; /* Mimic segmented font */
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); /* Subtle glow */
         }
         .status-message {
             font-size: 1.1rem;
@@ -52,16 +66,17 @@
             min-height: 2rem; /* Reserve space to prevent layout shifts */
         }
         .info-box {
-            background-color: #4a5568; /* Darker gray for info */
+            background-color: #1a1a1a; /* Darker gray for info, but still very dark */
             padding: 1rem;
             border-radius: 0.75rem;
             font-size: 0.9rem;
-            color: #cbd5e0;
+            color: #a0aec0; /* Slightly muted text for info */
             text-align: left;
+            margin-top: 1.5rem; /* Add margin above info box */
         }
         /* Canvas specific styling */
         #speedometerCanvas {
-            background-color: #2d3748; /* Match container background */
+            background-color: #000000; /* Match container background */
             border-radius: 1rem;
             margin-top: 1.5rem;
             width: 100%; /* Make canvas responsive */
@@ -74,6 +89,8 @@
             font-weight: bold;
             color: #a0aec0; /* Gray color for clock */
             margin-top: 1rem;
+            font-family: 'Digital-7', monospace; /* Mimic segmented font */
+            text-shadow: 0 0 8px rgba(160, 174, 192, 0.5); /* Glow effect */
         }
         .location-address {
             font-size: 1rem;
@@ -86,10 +103,11 @@
         .tabs {
             display: flex;
             justify-content: center;
-            margin-bottom: 1.5rem;
-            background-color: #4a5568;
+            margin-top: 1.5rem; /* Add margin above tabs when at bottom */
+            background-color: #1a1a1a; /* Darker background for tabs */
             border-radius: 0.75rem;
             padding: 0.5rem;
+            width: 100%; /* Ensure tabs span full width */
         }
         .tab-button {
             flex: 1;
@@ -104,15 +122,16 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
         .tab-button.active {
-            background-color: #63b3ed; /* Blue for active tab */
+            background-color: #007bff; /* A distinct blue for active tab */
             color: white;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         .tab-button:hover:not(.active) {
-            background-color: #5a657a;
+            background-color: #2a2a2a;
         }
         .tab-content {
             display: none; /* Hidden by default */
+            width: 100%; /* Ensure content takes full width */
         }
         .tab-content.active {
             display: flex; /* Show active content */
@@ -120,56 +139,14 @@
             gap: 1.5rem;
         }
 
-        /* Destination input and display styles */
-        .destination-input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        .destination-input-group input[type="text"] {
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid #4a5568;
-            background-color: #2d3748;
-            color: #e2e8f0;
-            font-size: 1rem;
-            width: 100%;
-            box-sizing: border-box; /* Include padding in width */
-        }
-        .destination-input-group input[type="text"]::placeholder {
-            color: #a0aec0;
-        }
-        .destination-input-group button {
-            padding: 0.75rem 1.25rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            background-color: #4299e1; /* Blue for action button */
-            color: white;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .destination-input-group button:hover {
-            background-color: #3182ce;
-        }
-        .destination-input-group button:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .distance-display {
-            font-size: 1.5rem;
+        /* GPS Indicator Styling */
+        .gps-indicator {
+            font-size: 1.8rem; /* Size for GPS text */
             font-weight: bold;
-            color: #f6ad55; /* Orange color for distance */
-            margin-top: 1rem;
-            min-height: 1.5rem; /* Reserve space */
-        }
-        .destination-name-display {
-            font-size: 0.9rem;
-            color: #cbd5e0;
-            min-height: 1.2rem;
-            margin-top: 0.5rem;
+            color: #00ffff; /* Cyan color for GPS */
+            font-family: 'Digital-7', monospace; /* Mimic segmented font */
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7); /* Glow effect */
+            margin-top: 1rem; /* Space below speed/unit */
         }
     </style>
 </head>
@@ -177,12 +154,6 @@
     <div class="container">
         <h1 class="text-3xl font-bold text-white mb-2">Speed Meter</h1>
         
-        <!-- Tabs Navigation -->
-        <div class="tabs">
-            <button id="speedTabButton" class="tab-button active">Speed Meter</button>
-            <button id="distanceTabButton" class="tab-button">Distance Calculator</button>
-        </div>
-
         <!-- Location Address Display (common to both tabs) -->
         <div id="locationAddress" class="location-address">Fetching current location...</div>
 
@@ -193,8 +164,11 @@
 
             <div class="speed-display-area">
                 <div id="speed" class="speed-display">0.0</div>
-                <div id="unit" class="unit">km/h</div>
+                <div id="unit" class="unit">MPH</div>
             </div>
+
+            <!-- GPS Indicator -->
+            <div id="gpsIndicator" class="gps-indicator">GPS</div>
 
             <!-- Clock display -->
             <div id="clock" class="clock-display"></div>
@@ -211,6 +185,12 @@
                 <div id="distanceDisplay" class="distance-display"></div>
             </div>
             <p id="distanceStatus" class="status-message">Enter a destination to calculate distance.</p>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs">
+            <button id="speedTabButton" class="tab-button active">Speed Meter</button>
+            <button id="distanceTabButton" class="tab-button">Distance Calculator</button>
         </div>
 
         <div class="info-box">
@@ -230,6 +210,7 @@
         const ctx = speedometerCanvas.getContext('2d');
         const clockDisplay = document.getElementById('clock');
         const locationAddressDisplay = document.getElementById('locationAddress');
+        const gpsIndicator = document.getElementById('gpsIndicator'); // New GPS indicator element
 
         const speedTabButton = document.getElementById('speedTabButton');
         const distanceTabButton = document.getElementById('distanceTabButton');
@@ -244,8 +225,8 @@
 
 
         let watchId = null;
-        const speedUnit = 'km/h';
-        const maxSpeed = 120;
+        const speedUnit = 'mph'; // Changed to MPH as per image
+        const maxSpeed = 140; // Changed to 140 MPH as per image
 
         let lastLocationFetchTime = 0;
         const LOCATION_FETCH_THROTTLE_MS = 5000; // Throttle for reverse geocoding
@@ -284,36 +265,62 @@
 
             const centerX = speedometerCanvas.width / 2;
             const centerY = speedometerCanvas.height; // Base of the semi-circle
-            const radius = speedometerCanvas.width / 2 - 10; // Slightly smaller than half width for padding
+            const radius = speedometerCanvas.width / 2 - 15; // Slightly smaller for thicker outer ring
 
-            // Draw the outer arc (speedometer background)
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, Math.PI, 2 * Math.PI, false); // Half circle from 180 to 360 degrees
-            ctx.lineWidth = 20;
-            ctx.strokeStyle = '#4a5568'; // Darker gray for the track
-            ctx.stroke();
+            // Draw the outer gradient ring segments
+            const startAngle = Math.PI; // 180 degrees
+            const endAngle = 2 * Math.PI; // 360 degrees (full circle, but we draw half)
 
-            // Draw speed markings and labels
-            ctx.font = '14px Inter';
-            ctx.fillStyle = '#cbd5e0'; // Light gray for text
+            const greenEnd = 60; // Up to 60 MPH
+            const yellowEnd = 90; // Up to 90 MPH
+            const orangeEnd = 110; // Up to 110 MPH
+            // Red goes up to maxSpeed (140 MPH)
+
+            const segmentWidth = 20; // Thickness of the colored ring
+
+            // Function to draw a colored arc segment
+            function drawArcSegment(startVal, endVal, color) {
+                const segmentStartAngle = startAngle + (startVal / maxSpeed) * Math.PI;
+                const segmentEndAngle = startAngle + (endVal / maxSpeed) * Math.PI;
+
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, segmentStartAngle, segmentEndAngle, false);
+                ctx.lineWidth = segmentWidth;
+                ctx.strokeStyle = color;
+                ctx.stroke();
+            }
+
+            // Draw colored segments
+            drawArcSegment(0, greenEnd, '#00ff00'); // Green
+            drawArcSegment(greenEnd, yellowEnd, '#ffff00'); // Yellow
+            drawArcSegment(yellowEnd, orangeEnd, '#ff8c00'); // Orange
+            drawArcSegment(orangeEnd, maxSpeed, '#ff0000'); // Red
+
+            // Draw tick marks and labels
+            ctx.font = '14px Inter'; // Keeping Inter for numbers, but could use Digital-7 if desired
+            ctx.fillStyle = '#ffffff'; // White for numbers
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
-            for (let i = 0; i <= maxSpeed; i += 20) {
-                const angle = Math.PI + (i / maxSpeed) * Math.PI; // Map speed to angle (180 to 360 degrees)
-                const x = centerX + radius * Math.cos(angle);
-                const y = centerY + radius * Math.sin(angle);
+            for (let i = 0; i <= maxSpeed; i += 10) { // Major ticks every 10 MPH
+                const angle = startAngle + (i / maxSpeed) * Math.PI;
+                const tickLength = (i % 20 === 0) ? 10 : 5; // Longer ticks for 20, 40, 60...
+                const innerTickRadius = radius - segmentWidth / 2 - tickLength;
+                const outerTickRadius = radius - segmentWidth / 2;
 
                 // Draw tick marks
                 ctx.beginPath();
                 ctx.lineWidth = 2;
-                ctx.strokeStyle = '#cbd5e0';
-                ctx.moveTo(centerX + (radius - 10) * Math.cos(angle), centerY + (radius - 10) * Math.sin(angle));
-                ctx.lineTo(centerX + radius * Math.cos(angle), centerY + radius * Math.sin(angle));
+                ctx.strokeStyle = '#ffffff'; // White ticks
+                ctx.moveTo(centerX + innerTickRadius * Math.cos(angle), centerY + innerTickRadius * Math.sin(angle));
+                ctx.lineTo(centerX + outerTickRadius * Math.cos(angle), centerY + outerTickRadius * Math.sin(angle));
                 ctx.stroke();
 
-                // Draw labels
-                ctx.fillText(i.toString(), centerX + (radius - 25) * Math.cos(angle), centerY + (radius - 25) * Math.sin(angle));
+                // Draw labels for major ticks (every 20 MPH)
+                if (i % 20 === 0) {
+                    const labelRadius = radius - segmentWidth / 2 - 25; // Position labels further in
+                    ctx.fillText(i.toString(), centerX + labelRadius * Math.cos(angle), centerY + labelRadius * Math.sin(angle));
+                }
             }
 
             // Draw the needle
@@ -321,22 +328,26 @@
             ctx.translate(centerX, centerY); // Move origin to center of the dial
 
             // Calculate needle angle based on current speed
-            let needleAngle = Math.PI + (Math.min(currentSpeed, maxSpeed) / maxSpeed) * Math.PI;
+            let needleAngle = startAngle + (Math.min(currentSpeed, maxSpeed) / maxSpeed) * Math.PI;
 
             ctx.rotate(needleAngle); // Rotate to the calculated angle
 
             ctx.beginPath();
-            ctx.moveTo(-5, 0); // Base of the needle
-            ctx.lineTo(5, 0);
-            ctx.lineTo(0, -radius + 15); // Tip of the needle
+            ctx.moveTo(-3, 0); // Base of the needle (thinner)
+            ctx.lineTo(3, 0);
+            ctx.lineTo(0, -radius + 10); // Tip of the needle
             ctx.closePath();
-            ctx.fillStyle = '#f56565'; // Red color for the needle
+            ctx.fillStyle = '#ff0000'; // Red color for the needle
             ctx.fill();
 
             // Draw the central pivot point
             ctx.beginPath();
-            ctx.arc(0, 0, 8, 0, 2 * Math.PI);
-            ctx.fillStyle = '#63b3ed'; // Blue for pivot
+            ctx.arc(0, 0, 10, 0, 2 * Math.PI); // Larger pivot
+            ctx.fillStyle = '#ffffff'; // White pivot
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, 0, 2 * Math.PI); // Smaller red center
+            ctx.fillStyle = '#ff0000';
             ctx.fill();
 
             ctx.restore(); // Restore the canvas state
@@ -465,15 +476,15 @@
             currentLongitude = position.coords.longitude; // Update global currentLongitude
 
             let displaySpeed;
-            if (speedUnit === 'km/h') {
+            if (speedUnit === 'km/h') { // This logic needs to be updated to MPH
                 displaySpeed = convertMpsToKmh(speedMps);
             } else {
-                displaySpeed = convertMpsToMph(speedMps);
+                displaySpeed = convertMpsToMph(speedMps); // Use MPH conversion
             }
 
             const newSpeed = parseFloat(displaySpeed.toFixed(1)); // Get the new speed as a number, rounded
 
-            // Apply the new condition: Don't display speed if less than 1 km/h
+            // Apply the new condition: Don't display speed if less than 1 km/h (now MPH)
             if (newSpeed < 1.0) {
                 if (currentDisplayedSpeed !== 0.0) { // Only update if it's changing to 0
                     speedDisplay.textContent = '0.0';
@@ -494,7 +505,7 @@
                 statusMessage.textContent = 'GPS signal weak or no movement detected.';
                 drawSpeedometer(0);
             } else {
-                // Display actual speed if >= 1 km/h and valid
+                // Display actual speed if >= 1 km/h (now MPH) and valid
                 if (currentDisplayedSpeed !== newSpeed) {
                     speedDisplay.textContent = newSpeed.toFixed(1);
                     speedDisplay.classList.add('flash');
@@ -504,10 +515,18 @@
                 statusMessage.textContent = 'Tracking speed...';
                 drawSpeedometer(newSpeed);
             }
-            unitDisplay.textContent = speedUnit;
+            unitDisplay.textContent = speedUnit.toUpperCase(); // Ensure unit is uppercase (MPH)
 
             // Fetch and display current location name, respecting the throttle
             fetchLocationName(currentLatitude, currentLongitude);
+
+            // Update GPS indicator visibility based on signal
+            if (speedMps !== null && speedMps >= 0) {
+                gpsIndicator.style.visibility = 'visible';
+            } else {
+                gpsIndicator.style.visibility = 'hidden';
+            }
+
 
             // Calculate and display distance if a destination is set and on the distance tab
             if (distanceCalculatorTabContent.classList.contains('active') && destinationCoords) {
@@ -519,6 +538,8 @@
                 distanceStatus.textContent = 'Distance updated.';
             } else if (distanceCalculatorTabContent.classList.contains('active') && !destinationCoords) {
                  distanceStatus.textContent = 'Enter a destination to calculate distance.';
+                 distanceDisplay.textContent = ''; // Ensure distance is clear if no destination
+                 destinationNameDisplay.textContent = ''; // Ensure destination name is clear
             }
         }
 
@@ -551,6 +572,7 @@
             statusMessage.textContent = errorMessage;
             console.error('Geolocation error:', error.code, error.message, error);
             drawSpeedometer(0);
+            gpsIndicator.style.visibility = 'hidden'; // Hide GPS indicator on error
             // Update distance status if on distance tab
             if (distanceCalculatorTabContent.classList.contains('active')) {
                 distanceStatus.textContent = 'Cannot calculate distance without current location.';
@@ -575,6 +597,7 @@
             } else {
                 statusMessage.textContent = 'Geolocation is not supported by your browser.';
                 locationAddressDisplay.textContent = 'Geolocation not supported.';
+                gpsIndicator.style.visibility = 'hidden'; // Hide GPS indicator if not supported
                 // Update distance status if on distance tab
                 if (distanceCalculatorTabContent.classList.contains('active')) {
                     distanceStatus.textContent = 'Geolocation not supported.';
@@ -622,19 +645,45 @@
             speedMeterTabContent.classList.remove('active');
             distanceCalculatorTabContent.classList.remove('active');
 
+            // Hide all status messages initially
+            statusMessage.style.display = 'none';
+            distanceStatus.style.display = 'none';
+
             // Activate the selected tab button and content
             if (tabName === 'speedMeterTabContent') {
                 speedTabButton.classList.add('active');
                 speedMeterTabContent.classList.add('active');
-                // Ensure speed-related messages are visible
-                statusMessage.style.display = 'block';
-                distanceStatus.style.display = 'none';
+                statusMessage.style.display = 'block'; // Show speed status
+                // Clear distance-related displays when switching away from distance tab
+                distanceDisplay.textContent = '';
+                destinationNameDisplay.textContent = '';
+                destinationInput.value = ''; // Clear destination input field
+                destinationCoords = null; // Reset destination coordinates
+                gpsIndicator.style.visibility = 'visible'; // Show GPS indicator on speed tab
             } else if (tabName === 'distanceCalculatorTabContent') {
                 distanceTabButton.classList.add('active');
                 distanceCalculatorTabContent.classList.add('active');
-                // Ensure distance-related messages are visible
-                statusMessage.style.display = 'none';
-                distanceStatus.style.display = 'block';
+                distanceStatus.style.display = 'block'; // Show distance status
+                gpsIndicator.style.visibility = 'hidden'; // Hide GPS indicator on distance tab
+
+                // Set initial messages for distance tab if no destination is set
+                if (!destinationCoords) {
+                    distanceDisplay.textContent = '';
+                    destinationNameDisplay.textContent = '';
+                    distanceStatus.textContent = 'Enter a destination to calculate distance.';
+                } else {
+                    // If a destination is set, re-display its name and current distance
+                    // Use destinationInput.value as a reliable source for the entered name
+                    destinationNameDisplay.textContent = `Destination: ${destinationInput.value}`;
+                    if (currentLatitude !== null && currentLongitude !== null) {
+                        const dist = calculateDistance(currentLatitude, currentLongitude, destinationCoords.lat, destinationCoords.lon);
+                        distanceDisplay.textContent = `${dist.toFixed(2)} km`;
+                        distanceStatus.textContent = 'Distance updated.';
+                    } else {
+                        distanceDisplay.textContent = 'Waiting for current location...';
+                        distanceStatus.textContent = 'Waiting for current location...';
+                    }
+                }
             }
             resizeCanvas(); // Recalculate canvas size if needed after tab switch
         }
@@ -654,12 +703,17 @@
                 statusMessage.textContent = 'Geolocation is not supported by your browser.';
                 locationAddressDisplay.textContent = 'Geolocation not supported.';
                 distanceStatus.textContent = 'Geolocation not supported.'; // Also update distance tab status
+                gpsIndicator.style.visibility = 'hidden'; // Hide if geolocation not supported
             }
             resizeCanvas();
             startTracking();
             setInterval(updateClock, 1000);
             updateClock();
             switchTab('speedMeterTabContent'); // Default to Speed Meter tab
+            // Initialize distance tab messages
+            distanceDisplay.textContent = '';
+            destinationNameDisplay.textContent = '';
+            distanceStatus.textContent = 'Enter a destination to calculate distance.';
         };
 
         // Redraw speedometer on window resize
